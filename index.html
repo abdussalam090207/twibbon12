@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twibbon Generator MATSAMA by ELC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS tetap sama seperti sebelumnya */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: ffffff;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        header h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            border-radius: 2px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 20px auto;
+            color: #070707;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-section,
+        .preview-section {
+            background: rgba(20, 20, 40, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #00dbde;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #fc00ff;
+        }
+
+        .upload-area {
+            border: 3px dashed #4a00e0;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(30, 30, 60, 0.3);
+        }
+
+        .upload-area:hover {
+            background: rgba(40, 40, 80, 0.5);
+            border-color: #8e2de2;
+        }
+
+        .upload-area i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #8e2de2;
+        }
+
+        .upload-area h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: #a0a0c0;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            background: linear-gradient(90deg, #8e2de2, #4a00e0);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(142, 45, 226, 0.6);
+        }
+
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+            overflow: hidden;
+            border-radius: 15px;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .frame-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .twibbon-frame {
+            position: absolute;
+            max-width: 90%;
+            max-height: 90%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .user-image {
+            position: absolute;
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: cover;
+            z-index: 1;
+            cursor: move;
+        }
+
+        .controls {
+            margin-top: 25px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0a0c0;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 10px;
+            background: rgba(100, 100, 150, 0.3);
+            border-radius: 5px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #8e2de2;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(142, 45, 226, 0.8);
+        }
+
+        .slider-value {
+            width: 50px;
+            text-align: center;
+            background: rgba(50, 50, 80, 0.5);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn {
+            background: linear-gradient(90deg, #00c9ff, #92fe9d);
+            color: #0a2e3d;
+        }
+
+        .reset-btn {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .frame-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .frame-option {
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .frame-option:hover {
+            transform: scale(1.05);
+        }
+
+        .frame-option.active {
+            border-color: #00dbde;
+            box-shadow: 0 0 20px rgba(0, 219, 222, 0.5);
+        }
+
+        .frame-option img {
+            width: 100%;
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0 20px;
+            color: #a0a0c0;
+            font-size: 0.9rem;
+            margin-top: 50px;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(142, 45, 226, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(142, 45, 226, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(142, 45, 226, 0);
+            }
+        }
+
+        .neon-text {
+            color: #00dbde;
+        }
+
+        .drag-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #8e2de2;
+            font-weight: bold;
+            z-index: 3;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1 class="neon-text">BUAT TWIBBONMU DISINI</h1>
+            <p>Buat twibbon futuristik dengan foto Anda. Unggah foto, atur ukuran dan posisi, lalu unduh hasilnya!</p>
+        </header>
+
+        <div class="app-container">
+            <div class="upload-section">
+                <h2 class="section-title"><i class="fas fa-cloud-upload-alt"></i> Unggah Foto</h2>
+
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-images"></i>
+                    <h3>Seret & Lepaskan Foto Anda</h3>
+                    <p>Atau klik untuk memilih file (JPG, PNG, max 5MB)</p>
+                    <button class="upload-btn pulse">
+                        <i class="fas fa-folder-open"></i> Pilih Foto
+                    </button>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="frame-selector">
+                    <h2 class="section-title" style="grid-column: span 3; margin-top: 30px;"><i
+                            class="fas fa-border-style"></i> Template Twibbon</h2>
+                    <div class="frame-option active">
+                        <img src="https://raw.githubusercontent.com/abdussalam090207/twibbonku/main/1751893679311.png"
+                            alt="Template Kustom">
+                    </div>
+                </div>
+
+                <div class="status-badge">
+                    <i class="fas fa-check-circle"></i> Template GitHub Terpasang
+                </div>
+
+                <style>
+                    .status-badge {
+                        display: none;
+                    }
+                </style>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title"><i class="fas fa-eye"></i> Lihat Twibbonmu</h2>
+
+                <div class="preview-container">
+                    <div class="frame-container">
+                        <img id="userImage" class="user-image" style="display: none;">
+                        <img id="twibbonFrame" class="twibbon-frame"
+                            src="https://raw.githubusercontent.com/abdussalam090207/twibbonku/refs/heads/main/1751897988685.png"
+                            alt="Twibbon Frame">
+                        <div class="drag-hint">Geser foto untuk menyesuaikan posisi</div>
+                    </div>
+                </div>
+                <style>
+                    .peringata {
+                        background: rgba(255, 255, 255, 0.1);
+                        padding: 15px;
+                        border-radius: 10px;
+                        color: #c0bcbc;
+                        font-size: 0.9rem;
+                        margin-top: 20px;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .peringata p {
+                        margin: 0;
+                        flex: 1;
+                    }
+
+                    .peringata svg {
+                        margin-right: 10px;
+                        color: #ff0000;
+                        align-items: center;
+                    }
+                </style>
+
+                <div class="peringata">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="90" height="100" viewBox="0 0 30 30" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-alert-triangle">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 9v4" />
+                        <path
+                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                        <path d="M12 16h.01" />
+                    </svg>
+                    <p>Pastikan foto yang diunggah memiliki kualitas baik dan sesuai dengan template twibbon.
+                   Dalam pengunduhan tunggu max 10 detik (Internet Lancar)
+                        <br>Web ini Aman karena tidak menggunakan penyimpanan server dan ini masih Beta "Selamat
+                        Mencoba..."
+       
+                    </p>
+
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="sizeSlider">Perbesar Foto</label>
+                        <div class="slider-container">
+                            <input type="range" min="50" max="150" value="100" class="slider" id="sizeSlider">
+                            <span class="slider-value" id="sizeValue">100%</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="rotateSlider">Putar Foto</label>
+                        <div class="slider-container">
+                            <input type="range" min="-45" max="45" value="0" class="slider" id="rotateSlider">
+                            <span class="slider-value" id="rotateValue">0°</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="action-btn download-btn" id="downloadBtn">
+                            <i class="fas fa-download"></i> Unduh Twibbon
+                        </button>
+                        <button class="action-btn reset-btn" id="resetBtn">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            .kontak {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                top: 30px;
+                right: 20px;
+                z-index: 0;
+            }
+
+            .kontak button {
+                background-color: #25D366;
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 50px;
+                font-size: 1.2rem;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.3s ease, transform 0.3s ease;
+            }
+
+            .kontak button:hover {
+                background-color: #128C7E;
+                transform: translateY(-3px);
+            }
+
+            .kontak i {
+                margin-right: 10px;
+            }
+        </style>
+
+        <div class="kontak">
+            <button>
+                <a href="https://wa.me/6289531657198" target="_blank" style="text-decoration: none; color: white;">
+                    <i class="fab fa-whatsapp"></i> Hubungi Jika Ada Kendala
+                </a>
+            </button>
+        </div>
+
+        <footer>
+            <p>© 2025 Twibbon Generator MATSAMA | Dibuat oleh Abdus Salam</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Elements
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const userImage = document.getElementById('userImage');
+            const twibbonFrame = document.getElementById('twibbonFrame');
+            const sizeSlider = document.getElementById('sizeSlider');
+            const sizeValue = document.getElementById('sizeValue');
+            const rotateSlider = document.getElementById('rotateSlider');
+            const rotateValue = document.getElementById('rotateValue');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const frameOptions = document.querySelectorAll('.frame-option');
+
+            // Variables
+            let scale = 1;
+            let rotation = 0;
+            let isDragging = false;
+            let startX, startY;
+            let offsetX = 0, offsetY = 0;
+            let currentOffsetX = 0, currentOffsetY = 0;
+
+            // Event Listeners
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+
+            sizeSlider.addEventListener('input', () => {
+                scale = sizeSlider.value / 100;
+                sizeValue.textContent = sizeSlider.value + '%';
+                updateImageTransform();
+            });
+
+            rotateSlider.addEventListener('input', () => {
+                rotation = rotateSlider.value;
+                rotateValue.textContent = rotation + '°';
+                updateImageTransform();
+            });
+
+            downloadBtn.addEventListener('click', downloadTwibbon);
+            resetBtn.addEventListener('click', resetControls);
+
+            // Drag functionality
+            userImage.addEventListener('mousedown', startDrag);
+            userImage.addEventListener('touchstart', startDragTouch);
+
+            // Frame selection
+            frameOptions.forEach(frame => {
+                frame.addEventListener('click', () => {
+                    frameOptions.forEach(f => f.classList.remove('active'));
+                    frame.classList.add('active');
+                    twibbonFrame.src = frame.querySelector('img').src;
+                });
+            });
+
+            // Functions
+            function handleFileUpload(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (!file.type.match('image.*')) {
+                    alert('Silakan unggah file gambar (JPG, PNG)');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Ukuran file maksimal 5MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    userImage.src = event.target.result;
+                    userImage.style.display = 'block';
+
+                    // --- RESET CONTROLS ---
+                    rotation = 0;
+                    offsetX = offsetY = currentOffsetX = currentOffsetY = 0;
+
+                    // Dapatkan ukuran natural foto
+                    const tempImg = new Image();
+                    tempImg.src = event.target.result;
+                    tempImg.onload = () => {
+                        // Ukuran preview frame (px di layar)
+                        const frameRect = twibbonFrame.getBoundingClientRect();
+                        const frameW = frameRect.width;
+                        const frameH = frameRect.height;
+
+                        // Hitung scale awal untuk "cover"
+                        scale = computeCoverScale(
+                            tempImg.naturalWidth,
+                            tempImg.naturalHeight,
+                            frameW,
+                            frameH
+                        );
+                        sizeSlider.value = Math.round(scale * 100);
+                        sizeValue.textContent = sizeSlider.value + '%';
+
+                        // Centering: offsetX/Y supaya image di-center di frame
+                        // Karena gambar akan digambar dengan center pivot
+                        offsetX = offsetY = 0;
+
+                        updateImageTransform();
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            }
+
+            function updateImageTransform() {
+                userImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale}) rotate(${rotation}deg)`;
+            }
+
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                startX = e.clientX - offsetX;
+                startY = e.clientY - offsetY;
+
+                document.addEventListener('mousemove', dragImage);
+                document.addEventListener('mouseup', stopDrag);
+            }
+
+            function startDragTouch(e) {
+                e.preventDefault();
+                isDragging = true;
+                const touch = e.touches[0];
+                startX = touch.clientX - offsetX;
+                startY = touch.clientY - offsetY;
+
+                document.addEventListener('touchmove', dragImageTouch);
+                document.addEventListener('touchend', stopDrag);
+            }
+
+            function dragImage(e) {
+                if (!isDragging) return;
+                offsetX = e.clientX - startX;
+                offsetY = e.clientY - startY;
+                updateImageTransform();
+            }
+
+            function dragImageTouch(e) {
+                if (!isDragging) return;
+                const touch = e.touches[0];
+                offsetX = touch.clientX - startX;
+                offsetY = touch.clientY - startY;
+                updateImageTransform();
+            }
+
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', dragImage);
+                document.removeEventListener('touchmove', dragImageTouch);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchend', stopDrag);
+
+                // Save current position
+                currentOffsetX = offsetX;
+                currentOffsetY = offsetY;
+            }
+
+            // Fungsi untuk bypass masalah CORS GitHub
+            function loadImageWithoutCORS(url, callback) {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = url + "?ts=" + new Date().getTime(); // Hindari cache
+                img.onload = () => callback(img);
+                img.onerror = () => {
+                    console.error("Gagal memuat template. Silakan coba lagi atau gunakan hosting lain.");
+                    alert("Error: Template tidak bisa dimuat. Coba refresh halaman atau gunakan hosting alternatif.");
+                };
+            }
+
+            const frameUrl = "https://raw.githubusercontent.com/abdussalam090207/twibbonku/refs/heads/main/1751897988685.png";
+
+
+            // Fungsi download yang diperbaiki
+            function downloadTwibbon() {
+                const userImg = document.getElementById('userImage');
+                if (!userImg.src) {
+                    return alert('Silakan unggah foto terlebih dahulu!');
+                }
+
+                const frameUrl = document.getElementById('twibbonFrame').src;
+                loadImageWithoutCORS(frameUrl, fixedFrame => {
+                    // 1) Setup canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = fixedFrame.naturalWidth;
+                    canvas.height = fixedFrame.naturalHeight;
+
+                    // 2) Hitung faktor mapping preview→canvas
+                    const frameRect = twibbonFrame.getBoundingClientRect();
+                    const imgRect = userImg.getBoundingClientRect();
+                    const scaleCanvas = canvas.width / frameRect.width;
+
+                    // 3) Hitung offset pusat gambar di preview (relatif ke pusat frame)
+                    const frameCX = frameRect.left + frameRect.width / 2;
+                    const frameCY = frameRect.top + frameRect.height / 2;
+                    const imgCX = imgRect.left + imgRect.width / 2;
+                    const imgCY = imgRect.top + imgRect.height / 2;
+                    const dxPreview = imgCX - frameCX;
+                    const dyPreview = imgCY - frameCY;
+
+                    // 4) Konversi ke canvas‑space
+                    const dxCanvas = dxPreview * scaleCanvas;
+                    const dyCanvas = dyPreview * scaleCanvas;
+                    const imgW = imgRect.width * scaleCanvas;
+                    const imgH = imgRect.height * scaleCanvas;
+
+                    // 5) Draw user image dengan rotasi & posisi sama persis
+                    ctx.save();
+                    ctx.translate(canvas.width / 2 + dxCanvas, canvas.height / 2 + dyCanvas);
+                    ctx.rotate(rotation * Math.PI / 180);
+                    ctx.drawImage(userImg, -imgW / 2, -imgH / 2, imgW, imgH);
+                    ctx.restore();
+
+                    // 6) Draw frame di atasnya
+                    ctx.drawImage(fixedFrame, 0, 0, canvas.width, canvas.height);
+
+                    // 7) Trigger download
+                    const link = document.createElement('a');
+                    link.download = 'twibbon-kustom.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }
+
+            function resetControls() {
+                scale = 1;
+                rotation = 0;
+                offsetX = 0;
+                offsetY = 0;
+                currentOffsetX = 0;
+                currentOffsetY = 0;
+
+                sizeSlider.value = 100;
+                sizeValue.textContent = '100%';
+                rotateSlider.value = 0;
+                rotateValue.textContent = '0°';
+
+                updateImageTransform();
+            }
+        });
+    </script>
+</body>
+
+</html>
