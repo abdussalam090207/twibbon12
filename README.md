@@ -1,4 +1,4 @@
-# 🔐 TWIBBON MATSAMA MTS
+# 🔐 TWIBBON MATSAMA MIN
 
 Web app **Twibbon Generator** dengan desain **moderen putih dan responsif**.  
 Dibuat untuk memberikan mempermudah siswa/i MI dalam membuat twibbon dalam melaksanakan MATSAMA-nya, tanpa **Iklan** dan **Wathermark**.
